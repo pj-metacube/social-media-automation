@@ -1,6 +1,10 @@
 package com.codehouse.util;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -138,6 +142,37 @@ public class Utils {
             String number = lastPart.substring(0, lastPart.lastIndexOf('.'));
             // Parse and return the numeric part
             return Integer.parseInt(number);
+        }
+    }
+
+    public static void moveImages(String imagePathFile, String destinationFolder) {
+        // Ensure destination folder exists
+        File destFolder = new File(destinationFolder);
+        if (!destFolder.exists()) {
+            destFolder.mkdirs();
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(imagePathFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                File imageFile = new File(line);
+                if (imageFile.exists()) {
+                    Path sourcePath = imageFile.toPath();
+                    Path destinationPath = Paths.get(destinationFolder, imageFile.getName());
+
+                    try {
+                        Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+                        System.out.println("Moved: " + imageFile.getName());
+                    } catch (IOException e) {
+                        System.err.println("Failed to move file: " + imageFile.getName());
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.out.println("File not found: " + line);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
